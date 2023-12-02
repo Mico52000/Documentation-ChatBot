@@ -18,6 +18,11 @@ uvicorn = "*"
 streamlit = "*"
 streamlit-chat = "*"
 tqdm = "*"
+python-dotenv = "*"
+huggingface-hub = "*"
+sentence-transformers = "*"
+transformers = "*"
+gpt4all = "*"
 
 [dev-packages]
 
