@@ -5,16 +5,19 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 from langchain.vectorstores import Pinecone
 import pinecone
+from consts import INDEX_NAME
+
 load_dotenv()
 pinecone.init(
     api_key=os.environ["PINECONE_API_KEY"],
     environment=os.environ["PINECONE_ENVIRONMENT_REGION"],
 )
-INDEX_NAME = "langchain-docs-index"
 
 
 def ingest_docs():
-    doc_loader = ReadTheDocsLoader(path='langchain-docs/api.python.langchain.com/en/latest')
+    doc_loader = ReadTheDocsLoader(
+        path="langchain-docs/api.python.langchain.com/en/latest"
+    )
     raw_docs = doc_loader.load()
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000, chunk_overlap=100, separators=["\n\n", "\n", " ", ""]
@@ -30,11 +33,8 @@ def ingest_docs():
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
     Pinecone.from_documents(documents, embeddings, index_name=INDEX_NAME)
-    print(f'${len(documents)} moved to vector store on pinecone')
+    print(f"${len(documents)} moved to vector store on pinecone")
 
 
-
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(ingest_docs())
