@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.llms import GPT4All
-from langchain.chains import RetrievalQA
+from langchain.chains import ConversationalRetrievalChain
 from langchain.vectorstores import Pinecone
 import pinecone
 import typing
@@ -17,7 +17,8 @@ pinecone.init(
     environment=os.environ["PINECONE_ENVIRONMENT_REGION"],
 )
 
-def run_llm(query: str) -> any:
+
+def run_llm(query: str, chat_history: tuple[str, str]) -> any:
     model_id = "sentence-transformers/all-MiniLM-L6-v2"
     hf_token = os.getenv("HF_API_KEY")
 
@@ -35,16 +36,12 @@ def run_llm(query: str) -> any:
         verbose=True,
         streaming=True,
         max_tokens=4000,
-
     )
-    qa = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=docsearch.as_retriever(),
-        return_source_documents=True,
+    qa = ConversationalRetrievalChain.from_llm(
+        llm=llm, retriever=docsearch.as_retriever(), return_source_documents=True
     )
 
-    return qa({"query": query})
+    return qa({"question": query, "chat_history": chat_history})
 
 
 if __name__ == "__main__":
